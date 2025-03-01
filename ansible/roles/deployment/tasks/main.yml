@@ -1,0 +1,11 @@
+- name: Clone the GitHub repository
+  git:
+    repo: "https://github.com/Mukumbuta/DevOps-Stage-4.git"
+    dest: "/home/ubuntu/app"
+    update: yes
+    force: yes
+
+- name: Run Docker Compose
+  command: docker compose up -d
+  args:
+    chdir: "/home/ubuntu/app"
