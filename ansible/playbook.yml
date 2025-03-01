@@ -1,0 +1,57 @@
+---
+- name: Deploy Dockerized App from GitHub
+  hosts: all
+  become: true
+  become_method: sudo
+
+  vars:
+    repo_url: "https://github.com/Mukumbuta/DevOps-Stage-4.git"
+    app_dir: "/home/ubuntu/app"
+    docker_compose_version: "2.32.4"
+
+  tasks:
+    - name: Update package list
+      apt:
+        update_cache: yes
+
+    - name: Install required packages
+      apt:
+        name:
+          - git
+          - docker.io
+          - curl
+        state: present
+
+    - name: Install or upgrade Docker Compose
+      shell: |
+        mkdir -p /usr/local/lib/docker/cli-plugins
+        curl -SL https://github.com/docker/compose/releases/download/v2.24.2/docker-compose-linux-x86_64 -o /usr/local/lib/docker/cli-plugins/docker-compose
+        sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+        docker compose version
+      args:
+        creates: /usr/local/bin/docker-compose
+
+    - name: Add user to the Docker group
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    - name: Ensure Docker service is running
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Clone the GitHub repository
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ app_dir }}"
+        update: yes
+        force: yes
+
+    - name: Run Docker Compose
+      command: docker compose up -d
+
+      args:
+        chdir: "{{ app_dir }}"
