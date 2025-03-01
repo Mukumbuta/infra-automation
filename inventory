@@ -1,0 +1,2 @@
+[todo-server]
+51.21.202.182 ansible_user=ubuntu ansible_ssh_private_key_file=/home/mukumbuta/Downloads/automator.pem
